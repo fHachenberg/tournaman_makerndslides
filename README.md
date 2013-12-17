@@ -9,9 +9,9 @@ Requirements
 Software
 --------
 
- *Python 2.7
- *python-pptx (tested with 0.3.0) (https://pypi.python.org/pypi/python-pptx)
- *Tournaman 2 (tested with Version 2.0.8) (http://tournaman.wikidot.com)
+* Python 2.7
+* python-pptx (tested with 0.3.0) (https://pypi.python.org/pypi/python-pptx)
+* Tournaman 2 (tested with Version 2.0.8) (http://tournaman.wikidot.com)
 
 Data
 ----
