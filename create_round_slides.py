@@ -1,48 +1,83 @@
 # -*- coding: utf-8 -*-
 
+# Copyright 2013 by Fabian Hachenberg http://github.com/fHachenberg
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 '''
-Frisst eine Rundendefinition aus Tournaman als XML-Datei und spuckt dann mithilfe eines pptx-Templates eine Präsentation für die Runde aus. Für die Motion kann eine weitere pptx-Präsentation übergeben werden, die dann dort eingebaut wird.
+After a round has been created in Tournaman, this tool can read the round definitions from the Tournaman data files in the "Data" subdirectory (xml and dat) and then create the round slides in pptx format by substituting the respective entries in the presentation template. Has be called in the folder, in which the trm file resides (contains subdirectories "Data", "Registration", ...).
+
+Normally, the only necessary input is the round_no. All other filenames are deducted from this. If you're using another branch in your tournament (The predefined one is "main") you need to specifiy this as well. Nevertheless all input and output filenames can also be set manually.
 '''
 
 import argparse
+import os
 
 parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument('--round_no', dest='round_no', action='store', type=int,
-                   help='Rundennummer')
+parser.add_argument('--round_no', dest='round_no', action='store', type=int, help='Index of round (1-N)', required=True)
+parser.add_argument('--branch', dest='branch', action="store", type=str, default="main", help="Tournament branch")
+parser.add_argument('--template', dest='pptx_template', action='store', help='Presentation template in pptx format', default="round presentation template.pptx")
+parser.add_argument('--output', dest='output', action='store', default=None, help='Output filename')
+
 parser.add_argument('--venue_file', dest='venue_file', action='store',
-                   help='Definition der Venues im Tournaman-def-Format')
+                   help='Manual choice of venue definition file (.def)', default=None)
 parser.add_argument('--team_file', dest='team_file', action='store',
-                   help='Definition der Teams im Tournaman-XML-Format')
+                   help='Manual choice of team definition file (.xml)', default=None)
 parser.add_argument('--adjucator_file', dest='adjucator_file', action='store',
-                   help='Definition der Juroren im Tournaman-XML-Format')
+                   help='Manual choice of adjucator definition file (.xml)', default=None)
 parser.add_argument('--round_file', dest='round_file', action='store',
-                   help='Definition der Turnierrunde im Tournaman-XML-Format')
-parser.add_argument('--pptx_template', dest='pptx_template', action='store',
-                   help='Präsentations-Template im pptx-Format')
-parser.add_argument('--output', dest='output', action='store', default='test.pptx', help='Ausgabe-Dateiname')
+                   help='Manual choice of debate definition file (.xml)', default=None)
 
 args = parser.parse_args()
 
 round_no   = args.round_no
-venue_file = args.venue_file
-team_file  = args.team_file
-adjucator_file = args.adjucator_file
-round_file = args.round_file
-output = args.output
+branch     = args.branch
+
+#if manual data files are not specified, they are deducted automatically from round_no and branch
+if args.venue_file == None:
+    venue_file = os.path.join("Data", "venues%d-%s.dat" % (round_no, branch))
+else:
+    venue_file = args.venue_file
+if args.team_file == None:
+    team_file  = os.path.join("Data", "teams%d-%s.xml" % (round_no, branch))
+else:
+    team_file  = args.team_file
+if args.adjucator_file == None:
+    adjucator_file = os.path.join("Data", "adjudicators%d-%s.xml" % (round_no, branch))
+else:
+    adjucator_file = args.adjucator_file
+if args.round_file == None:
+    round_file = os.path.join("Data", "debates%d-%s.xml" % (round_no, branch))
+else:
+    round_file = args.round_file
+
+#if output filename is not specified, it is generated from round_no and branch
+if args.output == None:
+    output = 'round presentation %s round %d.pptx' % (branch, round_no)
+else:
+    output = args.output
 
 pptx_template = args.pptx_template
 
-#Einlesen Daten aus XML
-
+#Read data from tournaman files
 import tournaman
-
 venue_db = tournaman.parse_venue_def(venue_file)
 team_db  = tournaman.parse_team_xml(team_file)
 adjud_db = tournaman.parse_adjucator_xml(adjucator_file)
 rnd = tournaman.parse_debates_xml(round_file, team_db, adjud_db, venue_db)
 
 from pptx import Presentation
-
 import re
 
 prs = Presentation(pptx_template)
