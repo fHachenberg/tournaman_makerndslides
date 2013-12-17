@@ -28,6 +28,9 @@ __maintainer__ = "Fabian Hachenberg"
 __email__ = "https://github.com/fHachenberg"
 __status__ = "Production"
 
+from lxml import etree
+import re
+
 class Team(object):
     def __init__(self, **args):
         self.name = args['name']
@@ -65,8 +68,6 @@ class Round(object):
         self.motion = args['motion']
         self.debates = args['debates']
 
-from lxml import etree
-
 def parse_team_xml(filename):
     tree =etree.parse(filename)
     branch = tree.getroot()
@@ -90,8 +91,6 @@ def parse_adjucator_xml(filename):
         id = int(adjud_tag.attrib['id'])
         adjuds[id] = Adjucator(name=name)
     return adjuds
-
-import re
 
 def parse_venue_def(filename):
     venues = {}
