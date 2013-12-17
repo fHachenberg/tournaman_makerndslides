@@ -11,6 +11,7 @@ Software
 
 * Python 2.7
 * python-pptx (tested with 0.3.0) (https://pypi.python.org/pypi/python-pptx)
+* lxml (tested with 3.2.4) (https://pypi.python.org/pypi/lxml)
 
 Data
 ----
