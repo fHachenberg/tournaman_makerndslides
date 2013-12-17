@@ -21,8 +21,22 @@ After a round has been created in Tournaman, this tool can read the round defini
 Normally, the only necessary input is the round_no. All other filenames are deducted from this. If you're using another branch in your tournament (The predefined one is "main") you need to specifiy this as well. Nevertheless all input and output filenames can also be set manually.
 '''
 
+__author__ = "Fabian Hachenberg"
+__copyright__ = "Copyright 2013, Fabian Hachenberg"
+__credits__ = ["Sönke Senff", "Jens Henning Fischer"]
+__license__ = "GPL"
+__version__ = "3"
+__maintainer__ = "Fabian Hachenberg"
+__email__ = "https://github.com/fHachenberg"
+__status__ = "Production"
+
 import argparse
 import os
+import re
+
+from pptx import Presentation
+
+import tournaman
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--round_no', dest='round_no', action='store', type=int, help='Index of round (1-N)', required=True)
@@ -71,14 +85,10 @@ else:
 pptx_template = args.pptx_template
 
 #Read data from tournaman files
-import tournaman
 venue_db = tournaman.parse_venue_def(venue_file)
 team_db  = tournaman.parse_team_xml(team_file)
 adjud_db = tournaman.parse_adjucator_xml(adjucator_file)
 rnd = tournaman.parse_debates_xml(round_file, team_db, adjud_db, venue_db)
-
-from pptx import Presentation
-import re
 
 prs = Presentation(pptx_template)
 
