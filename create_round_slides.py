@@ -48,8 +48,8 @@ parser.add_argument('--venue_file', dest='venue_file', action='store',
                    help='Manual choice of venue definition file (.def)', default=None)
 parser.add_argument('--team_file', dest='team_file', action='store',
                    help='Manual choice of team definition file (.xml)', default=None)
-parser.add_argument('--adjucator_file', dest='adjucator_file', action='store',
-                   help='Manual choice of adjucator definition file (.xml)', default=None)
+parser.add_argument('--adjudicator_file', dest='adjudicator_file', action='store',
+                   help='Manual choice of adjudicator definition file (.xml)', default=None)
 parser.add_argument('--round_file', dest='round_file', action='store',
                    help='Manual choice of debate definition file (.xml)', default=None)
 
@@ -67,10 +67,10 @@ if args.team_file == None:
     team_file  = os.path.join("Data", "teams%d-%s.xml" % (round_no, branch))
 else:
     team_file  = args.team_file
-if args.adjucator_file == None:
-    adjucator_file = os.path.join("Data", "adjudicators%d-%s.xml" % (round_no, branch))
+if args.adjudicator_file == None:
+    adjudicator_file = os.path.join("Data", "adjudicators%d-%s.xml" % (round_no, branch))
 else:
-    adjucator_file = args.adjucator_file
+    adjudicator_file = args.adjudicator_file
 if args.round_file == None:
     round_file = os.path.join("Data", "debates%d-%s.xml" % (round_no, branch))
 else:
@@ -87,7 +87,7 @@ pptx_template = args.pptx_template
 #Read data from tournaman files
 venue_db = tournaman.parse_venue_def(venue_file)
 team_db  = tournaman.parse_team_xml(team_file)
-adjud_db = tournaman.parse_adjucator_xml(adjucator_file)
+adjud_db = tournaman.parse_adjudicator_xml(adjudicator_file)
 rnd = tournaman.parse_debates_xml(round_file, team_db, adjud_db, venue_db)
 
 prs = Presentation(pptx_template)

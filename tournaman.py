@@ -44,7 +44,7 @@ class Speaker(Participant):
     def __init__(self, **args):
         Participant.__init__(self, **args)
 
-class Adjucator(Participant):
+class Adjudicator(Participant):
     def __init__(self, **args):
         Participant.__init__(self, **args)
 
@@ -80,7 +80,7 @@ def parse_team_xml(filename):
         teams[index] = Team(name=name, id=index)
     return teams
 
-def parse_adjucator_xml(filename):
+def parse_adjudicator_xml(filename):
     tree =etree.parse(filename)
     adjudicators = tree.getroot()
     adjuds = {}
@@ -89,7 +89,7 @@ def parse_adjucator_xml(filename):
         name = adjud_tag.attrib['name']
         institutions = [adjud_tag.attrib['home']]
         id = int(adjud_tag.attrib['id'])
-        adjuds[id] = Adjucator(name=name)
+        adjuds[id] = Adjudicator(name=name)
     return adjuds
 
 def parse_venue_def(filename):
@@ -123,14 +123,14 @@ def parse_debates_xml(filename, team_db, adjuds_db, venue_db):
             teams[positions[i]] = team_db[team_id]
         debate = Debate(venue=venue, **teams)
         debates.append(debate)
-    adjucators = rnd_tag.find("adjudicators")
-    pair_tags = adjucators.findall("pair")
+    adjudicators = rnd_tag.find("adjudicators")
+    pair_tags = adjudicators.findall("pair")
     for pair_tag in pair_tags:
-        adjucator_id = int(pair_tag.attrib['adj'])
-        adjucator = adjuds_db[adjucator_id]
+        adjudicator_id = int(pair_tag.attrib['adj'])
+        adjudicator = adjuds_db[adjudicator_id]
         venue_id = int(pair_tag.attrib['venue'])
         debate = filter(lambda d: d.venue.id == venue_id, debates)[0]        
-        debate.adjuds.append(adjucator)
+        debate.adjuds.append(adjudicator)
     rnd = Round(motion=motion_tag.text, debates=debates) #index=1, 
     return rnd
         
