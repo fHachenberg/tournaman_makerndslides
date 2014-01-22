@@ -92,31 +92,36 @@ rnd = tournaman.parse_debates_xml(round_file, team_db, adjud_db, venue_db)
 
 prs = Presentation(pptx_template)
 
-replacements = {
-                "m": rnd.motion,
-                "r": str(round_no),
-                "v1": rnd.debates[0].venue.name,
-                "v2": rnd.debates[1].venue.name,
-                "v3": rnd.debates[2].venue.name,
-                "og1": rnd.debates[0].og.name,
-                "og2": rnd.debates[1].og.name,
-                "og3": rnd.debates[2].og.name,
-                "oo1": rnd.debates[0].oo.name,
-                "oo2": rnd.debates[1].oo.name,
-                "oo3": rnd.debates[2].oo.name,
-                "cg1": rnd.debates[0].cg.name,
-                "cg2": rnd.debates[1].cg.name,
-                "cg3": rnd.debates[2].cg.name,
-                "co1": rnd.debates[0].co.name,
-                "co2": rnd.debates[1].co.name,
-                "co3": rnd.debates[2].co.name,
-                "j1":"\n".join(adjud.name for adjud in rnd.debates[0].adjuds),
-                "j2":"\n".join(adjud.name for adjud in rnd.debates[1].adjuds),
-                "j3":"\n".join(adjud.name for adjud in rnd.debates[2].adjuds)
-                }
+replacements = [
+                ("m", rnd.motion),
+                ("r", str(round_no))
+               ]
+for i, debate in enumerate(rnd.debates):
+    replacements += [("v%d"  % (i+1), debate.venue.name),
+                     ("og%d" % (i+1), debate.og.name),
+                     ("oo%d" % (i+1), debate.oo.name),
+                     ("cg%d" % (i+1), debate.cg.name),
+                     ("co%d" % (i+1), debate.co.name),
+                     ("j%d"  % (i+1), "\n".join(adjud.name for adjud in debate.adjuds))]
+replacements = dict(replacements)
+
+valid_placeholder_patterns = r"m|v[0-9]+|j[0-9]+|og[0-9]+|cg[0-9]+|oo[0-9]+|co[0-9]+"
 
 def do_repl(match):
+    '''
+    this callable does the replacements
+    If a placeholder is not in the replacements dict,
+    it is checked whether the placeholder conforms to one
+    of the valid placeholder patterns. If not, an error is prompted.
+    Otherwise a warning
+    '''
     name = match.groups(1)[0]
+    if name not in replacements.keys():
+        if not re.match(valid_placeholder_patterns, name):
+            print "ERROR -- invalid placeholder found in presentation:", name
+        else:
+            print "WARNING -- no data available to substitute valid placeholder'" + name + "'"
+        return ""
     return replacements[name]
 
 for slide in prs.slides:
@@ -125,6 +130,8 @@ for slide in prs.slides:
             continue
         for paragraph in shape.textframe.paragraphs:
             for run in paragraph.runs:     
+                if run.text == None:
+                    continue
                 run.text = re.sub(r"#([a-z0-9]+)", do_repl, run.text)
 
 prs.save(output)
